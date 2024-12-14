@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="author" content="Stéphane Calderoni">
+  <meta name="description" content="ESP32 Remote Control with WebSocket">
+  <title>ESP32 remote control</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="index.css">
+  <script>
+    // var gateway = `ws://${window.location.hostname}/ws`;
+    var gateway = `ws://192.168.1.190/ws`;
+    var websocket;
+
+    // ----------------------------------------------------------------------------
+    // Initialization
+    // ----------------------------------------------------------------------------
+
+    window.addEventListener('load', onLoad);
+
+    function onLoad(event) {
+        initWebSocket();
+        initButton();
+    }
+
+    // ----------------------------------------------------------------------------
+    // WebSocket handling
+    // ----------------------------------------------------------------------------
+
+    function initWebSocket() {
+        console.log('Trying to open a WebSocket connection...');
+        websocket = new WebSocket(gateway);
+        websocket.onopen    = onOpen;
+        websocket.onclose   = onClose;
+        websocket.onmessage = onMessage;
+    }
+
+    function onOpen(event) {
+        console.log('Connection opened');
+    }
+
+    function onClose(event) {
+        console.log('Connection closed');
+        setTimeout(initWebSocket, 2000);
+    }
+
+    function onMessage(event) {
+        document.getElementById('led').className = event.data;
+        document.getElementById('led').innerHTML = event.data;
+    }
+
+    // ----------------------------------------------------------------------------
+    // Button handling
+    // ----------------------------------------------------------------------------
+
+    function initButton() {
+        document.getElementById('upButton').addEventListener('click', onUpRequest);
+        document.getElementById('downButton').addEventListener('click', onDownRequest);
+    }
+
+    function onUpRequest(event) {
+        websocket.send('upButton');
+    }
+    function onDownRequest(event) {
+        websocket.send('downButton');
+    }
+  </script>
+</head>
+
+<body>
+  <div class="panel">
+    <h1>ESP32 remote control</h1>
+    <div id="led" class="%STATE%">%STATE%</div>
+    <button id="upButton">Su</button>
+    <button id="downButton">Giu'</button>
+  </div>
+</body>
+
+</html>
