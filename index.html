@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="index.css">
   <script>
     // var gateway = `ws://${window.location.hostname}/ws`;
-    var gateway = `ws://192.168.1.190/ws`;
+    var gateway = `ws://192.168.250.93/ws`;
     var websocket;
 
     // ----------------------------------------------------------------------------
@@ -48,7 +48,7 @@
     }
 
     function onMessage(event) {
-        document.getElementById('led').className = event.data;
+        document.getElementById('led').classList.remove('hidden');
         document.getElementById('led').innerHTML = event.data;
     }
 
@@ -73,7 +73,7 @@
 <body>
   <div class="panel">
     <h1>ESP32 remote control</h1>
-    <div id="led" class="%STATE%">%STATE%</div>
+    <div id="led" class="hidden">%STATE%</div>
     <button id="upButton">Su</button>
     <button id="downButton">Giu'</button>
   </div>
