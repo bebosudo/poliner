@@ -128,10 +128,11 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
         if (strcmp((char*)data, "downButton") == 0 && !lower_limit_switch.isPressed()) {
             motor_turning = true;
             motor_turning_up = false;
+            digitalWrite(DIR_PIN, HIGH);
         } else if (strcmp((char*)data, "upButton") == 0) { // && !upper_limit_switch.isPressed()) {
             motor_turning = true;
             motor_turning_up = true;
-            notifyClients();
+            digitalWrite(DIR_PIN, LOW);
         }
         notifyClients();
     }
@@ -322,6 +323,8 @@ void loop(){
   lower_limit_switch.read();
 
   if ((millis() - websocket_cleanup_last_run) > websocket_cleanup_interval_ms) {
+    Serial.println(motor_status_to_json());
+
     ws.cleanupClients();
     websocket_cleanup_last_run = millis();
     Serial.println("Cleaned up websocket clients");
