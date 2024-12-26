@@ -108,9 +108,10 @@ AsyncWebSocket ws("/ws"); // access at ws://[esp ip]/ws
 //   }
 // }
 
-// Whether the motor is turning
+// Whether the motor is turning.
 bool motor_turning = false;
-// Whether the motor is turning in the up direction
+// Whether the motor is turning in the up direction.
+// Remember to set DIR_PIN too when setting this value.
 bool motor_turning_up = false;
 
 String motor_status_to_json() {
@@ -201,13 +202,17 @@ String processor(const String& var){
   return String();
 }
 
-
 // Callback function to be called when the lower_limit_switch is pressed.
 void onPressed() {
-  Serial.println("Button pressed");
+  Serial.println("limit switch pressed");
   motor_turning = false;
   Serial.println("Turning off motor");
   // Update clients so that they know that a switch was pressed
+  notifyClients();
+}
+
+void onRelease() {
+  // Update clients so that they know that the switch was released
   notifyClients();
 }
 
@@ -321,10 +326,12 @@ void loop(){
   }
 
   lower_limit_switch.read();
+  if (lower_limit_switch.wasReleased()) {
+    onRelease();
+  }
 
+  // Perform a periodic WebSocket cleanup.
   if ((millis() - websocket_cleanup_last_run) > websocket_cleanup_interval_ms) {
-    Serial.println(motor_status_to_json());
-
     ws.cleanupClients();
     websocket_cleanup_last_run = millis();
     Serial.println("Cleaned up websocket clients");
