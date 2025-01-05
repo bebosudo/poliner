@@ -5,10 +5,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="author" content="Stéphane Calderoni">
   <meta name="description" content="ESP32 Remote Control with WebSocket">
   <title>ESP32 remote control</title>
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <!-- <link rel="icon" type="image/x-icon" href="favicon.ico"> -->
   <link rel="stylesheet" href="index.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <script src="index.js"></script>
@@ -17,33 +16,21 @@
 <body>
   <h1>ESP32 remote control</h1>
 
-  <div style="margin-top:16px">
+  <button id="upButton" class="iconSize mt-16px">
+    <i class="fas fa-arrow-up"></i>
+    <span>Apri porta/Open door</span>
+  </button>
+
+  <div class="iconSize mt-16px">
     <i id="lockStateIcon" class="fas"></i>
     <i id="lockStateDirection" class="fas"></i>
     <span id="lockState"></span>
   </div>
 
-  <div id="upButton" style="margin-top: 16px">
-    <i class="fas fa-2xl fa-arrow-up"></i>
-    <span>Apri</span>
-  </div>
-  <div id="downButton" style="margin-top: 16px">
-    <i class="fas fa-2xl fa-arrow-down"></i>
-    <span>Chiudi</span>
-  </div>
-
-  <!-- <button id="upButton">Su</button>
-  <button id="downButton">Giu'</button> -->
-
-  <!-- <div class="hidden">
-    <i class="fas fa-2xl fa-cogs"></i> <span id="motor_turning">0</span>
-  </div>
-  <div class="hidden">
-    <i class="fas fa-2xl fa-hand-pointer"></i> <span id="button_pressed">0</span>
-  </div>
-  <div class="hidden">
-    <i class="fas fa-2xl fa-arrow-up"></i> <span id="motor_turning_up">0</span>
-  </div> -->
+  <button id="downButton" class="iconSize mt-16px">
+    <i class="fas fa-arrow-down"></i>
+    <span>Chiudi porta/Close door</span>
+  </button>
 </body>
 
 </html>

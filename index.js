@@ -33,22 +33,22 @@ function onClose(event) {
 function onMessage(event) {
     motor_state = JSON.parse(event.data);
     if (motor_state.button_pressed == 1) {
-        document.getElementById('lockState').innerText = 'Porta chiusa';
-        document.getElementById('lockStateIcon').className = 'fas fa-2xl fa-lock';
+        document.getElementById('lockState').innerText = 'Porta chiusa/Door is closed';
+        document.getElementById('lockStateIcon').className = 'fas fa-lock';
         document.getElementById('lockStateDirection').className = 'fas';
     } else {
-        document.getElementById('lockState').innerText = 'Porta aperta';
-        document.getElementById('lockStateIcon').className = 'fas fa-2xl fa-unlock';
+        document.getElementById('lockState').innerText = 'Porta aperta/Door is open';
+        document.getElementById('lockStateIcon').className = 'fas fa-unlock';
         document.getElementById('lockStateDirection').className = 'fas';
     }
     if (motor_state.motor_turning == 1 && motor_state.motor_turning_up == 1) {
-        document.getElementById('lockState').innerText = 'Porta in apertura';
-        document.getElementById('lockStateIcon').className = 'fas fa-2xl fa-cog fa-spin';
-        document.getElementById('lockStateDirection').className = 'fas fa-2xl fa-arrow-up';
+        document.getElementById('lockState').innerText = 'Porta in apertura/Door is opening';
+        document.getElementById('lockStateIcon').className = 'fas fa-cog fa-spin';
+        document.getElementById('lockStateDirection').className = 'fas fa-arrow-up';
     } else if (motor_state.motor_turning == 1 && motor_state.motor_turning_up == 0) {
-        document.getElementById('lockState').innerText = 'Porta in chiusura';
-        document.getElementById('lockStateIcon').className = 'fas fa-2xl fa-cog fa-spin';
-        document.getElementById('lockStateDirection').className = 'fas fa-2xl fa-arrow-down';
+        document.getElementById('lockState').innerText = 'Porta in chiusura/Door is closing';
+        document.getElementById('lockStateIcon').className = 'fas fa-cog fa-spin';
+        document.getElementById('lockStateDirection').className = 'fas fa-arrow-down';
     }
 
     // document.getElementById('motor_turning').innerText = motor_state.motor_turning;
