@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="index.css">
   <script>
     // var gateway = `ws://${window.location.hostname}/ws`;
-    var gateway = `ws://192.168.250.93/ws`;
+    var gateway = `ws://192.168.1.190/ws`;
     var websocket;
 
     // ----------------------------------------------------------------------------
@@ -26,10 +26,6 @@
         initButton();
     }
 
-    // ----------------------------------------------------------------------------
-    // WebSocket handling
-    // ----------------------------------------------------------------------------
-
     function initWebSocket() {
         console.log('Trying to open a WebSocket connection...');
         websocket = new WebSocket(gateway);
@@ -40,6 +36,9 @@
 
     function onOpen(event) {
         console.log('Connection opened');
+        // For now there's no actual action associated with the "state" request, but that simply
+        // triggers the ESP to send back the current state of the motor.
+        websocket.send('state');
     }
 
     function onClose(event) {

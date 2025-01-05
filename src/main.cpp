@@ -135,6 +135,8 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
             motor_turning_up = true;
             digitalWrite(DIR_PIN, LOW);
         }
+        // Clients are updated after any request, even those that don't change the motor state like
+        // "state". We may want to reconsider this and only trigger updates on valid WS messages.
         notifyClients();
     }
 }
@@ -336,6 +338,6 @@ void loop(){
   if ((millis() - websocket_cleanup_last_run) > websocket_cleanup_interval_ms) {
     ws.cleanupClients();
     websocket_cleanup_last_run = millis();
-    Serial.println("Cleaned up websocket clients");
+    // Serial.println("Cleaned up websocket clients");
   }
 }
