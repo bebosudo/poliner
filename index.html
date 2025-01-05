@@ -10,20 +10,18 @@
   <title>ESP32 remote control</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <script>
     // var gateway = `ws://${window.location.hostname}/ws`;
     var gateway = `ws://192.168.1.190/ws`;
+    var motor_state;
     var websocket;
-
-    // ----------------------------------------------------------------------------
-    // Initialization
-    // ----------------------------------------------------------------------------
 
     window.addEventListener('load', onLoad);
 
     function onLoad(event) {
         initWebSocket();
-        initButton();
+        initInputs();
     }
 
     function initWebSocket() {
@@ -47,15 +45,32 @@
     }
 
     function onMessage(event) {
-        document.getElementById('led').classList.remove('hidden');
-        document.getElementById('led').innerHTML = event.data;
+        motor_state = JSON.parse(event.data);
+        if (motor_state.button_pressed == 1) {
+          document.getElementById('lockState').innerText = 'Porta chiusa';
+          document.getElementById('lockStateIcon').className = 'fas fa-2xl fa-lock';
+          document.getElementById('lockStateDirection').className = 'fas';
+        } else {
+          document.getElementById('lockState').innerText = 'Porta aperta';
+          document.getElementById('lockStateIcon').className = 'fas fa-2xl fa-unlock';
+          document.getElementById('lockStateDirection').className = 'fas';
+        }
+        if (motor_state.motor_turning == 1 && motor_state.motor_turning_up == 1) {
+          document.getElementById('lockState').innerText = 'Porta in apertura';
+          document.getElementById('lockStateIcon').className = 'fas fa-2xl fa-cog fa-spin';
+          document.getElementById('lockStateDirection').className = 'fas fa-2xl fa-arrow-up';
+        } else if (motor_state.motor_turning == 1 && motor_state.motor_turning_up == 0) {
+          document.getElementById('lockState').innerText = 'Porta in chiusura';
+          document.getElementById('lockStateIcon').className = 'fas fa-2xl fa-cog fa-spin';
+          document.getElementById('lockStateDirection').className = 'fas fa-2xl fa-arrow-down';
+        }
+
+        // document.getElementById('motor_turning').innerText = motor_state.motor_turning;
+        // document.getElementById('button_pressed').innerText = motor_state.button_pressed;
+        // document.getElementById('motor_turning_up').innerText = motor_state.motor_turning_up;
     }
 
-    // ----------------------------------------------------------------------------
-    // Button handling
-    // ----------------------------------------------------------------------------
-
-    function initButton() {
+    function initInputs() {
         document.getElementById('upButton').addEventListener('click', onUpRequest);
         document.getElementById('downButton').addEventListener('click', onDownRequest);
     }
@@ -70,13 +85,35 @@
 </head>
 
 <body>
-  <div class="panel">
-    <h1>ESP32 remote control</h1>
-    <div id="led" class="hidden">%STATE%</div>
-    <button id="upButton">Su</button>
-    <button id="downButton">Giu'</button>
-    <p>la direzione Su non ha un suo finecorsa per ora</p>
+  <h1>ESP32 remote control</h1>
+
+  <div style="margin-top:16px">
+    <i id="lockStateIcon" class="fas"></i>
+    <i id="lockStateDirection" class="fas"></i>
+    <span id="lockState"></span>
   </div>
+
+  <div id="upButton" style="margin-top: 16px">
+    <i class="fas fa-2xl fa-arrow-up"></i>
+    <span>Apri</span>
+  </div>
+  <div id="downButton" style="margin-top: 16px">
+    <i class="fas fa-2xl fa-arrow-down"></i>
+    <span>Chiudi</span>
+  </div>
+
+  <!-- <button id="upButton">Su</button>
+  <button id="downButton">Giu'</button> -->
+
+  <!-- <div class="hidden">
+    <i class="fas fa-2xl fa-cogs"></i> <span id="motor_turning">0</span>
+  </div>
+  <div class="hidden">
+    <i class="fas fa-2xl fa-hand-pointer"></i> <span id="button_pressed">0</span>
+  </div>
+  <div class="hidden">
+    <i class="fas fa-2xl fa-arrow-up"></i> <span id="motor_turning_up">0</span>
+  </div> -->
 </body>
 
 </html>
