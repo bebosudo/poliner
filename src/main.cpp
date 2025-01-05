@@ -220,10 +220,6 @@ void setup(){
   // Serial port for debugging purposes
   Serial.begin(115200);
 
-  if (!LittleFS.begin()) {
-    Serial.println("Cannot mount LittleFS volume...");
-  }
-
   // Declare pins as output:
   pinMode(STEP_PIN, OUTPUT);
   pinMode(DIR_PIN, OUTPUT);
@@ -256,15 +252,21 @@ void setup(){
   Serial.println(WiFi.localIP());
   server.begin();
 
-  File file = LittleFS.open("/hello.txt", "r");
-  if (!file) {
-      Serial.println("file open failed");
-  }
-  while (file.available()) {
-    Serial.write(file.read());
-  }
-  //Close the file
-  file.close();
+  // Test reading a file uploaded with LittleFS, useful to serve large amounts of data by esp8266
+  // directly without coding them as strings in the code.
+  //
+  // if (!LittleFS.begin()) {
+  //   Serial.println("Cannot mount LittleFS volume...");
+  // }
+  // File file = LittleFS.open("/hello.txt", "r");
+  // if (!file) {
+  //     Serial.println("file open failed");
+  // }
+  // while (file.available()) {
+  //   Serial.write(file.read());
+  // }
+  // //Close the file
+  // file.close();
 
   // attach AsyncWebSocket
   ws.onEvent(onEvent);
