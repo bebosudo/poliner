@@ -165,8 +165,8 @@ void onEvent(AsyncWebSocket       *server,
     }
 }
 
-const char index_html[] PROGMEM = R"rawliteral(
-)rawliteral";
+// const char index_html[] PROGMEM = R"rawliteral(
+// )rawliteral";
 
 // <script>
 // setInterval(function() {
@@ -192,17 +192,17 @@ const char index_html[] PROGMEM = R"rawliteral(
 // </script>
 
 // Replaces placeholder with DHT values
-String processor(const String& var){
-  Serial.println("Variable received: ");
-  Serial.println(var);
-  if (var == "LIMIT_SWITCH_STATE") {
-    return String(lower_limit_switch.isPressed() ? "chiuso" : "aperto");
-  }
-  else if (var == "MOTOR_DIRECTION") {
-    return String(motor_turning_up ? "su" : "giù");
-  }
-  return String();
-}
+// String processor(const String& var){
+//   Serial.println("Variable received: ");
+//   Serial.println(var);
+//   if (var == "LIMIT_SWITCH_STATE") {
+//     return String(lower_limit_switch.isPressed() ? "chiuso" : "aperto");
+//   }
+//   else if (var == "MOTOR_DIRECTION") {
+//     return String(motor_turning_up ? "su" : "giù");
+//   }
+//   return String();
+// }
 
 // Callback function to be called when the lower_limit_switch is pressed.
 void onPressed() {
@@ -274,46 +274,46 @@ void setup(){
   ws.onEvent(onEvent);
   server.addHandler(&ws);
 
-  // Route for root / web page
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/html", index_html, processor);
-  });
+  // // Route for root / web page
+  // server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+  //   request->send_P(200, "text/html", index_html, processor);
+  // });
 
-  server.on("/up", HTTP_POST, [](AsyncWebServerRequest *request){
-    Serial.println("up");
-    // Define direction for the stepper motor
-    motor_turning_up = true;
-    digitalWrite(DIR_PIN, LOW);
-    motor_turning = true;
-    request->send(200);
-  });
+  // server.on("/up", HTTP_POST, [](AsyncWebServerRequest *request){
+  //   Serial.println("up");
+  //   // Define direction for the stepper motor
+  //   motor_turning_up = true;
+  //   digitalWrite(DIR_PIN, LOW);
+  //   motor_turning = true;
+  //   request->send(200);
+  // });
 
-  server.on("/down", HTTP_POST, [](AsyncWebServerRequest *request){
-    Serial.println("down");
-    // Define direction for the stepper motor
-    motor_turning_up = false;
-    digitalWrite(DIR_PIN, HIGH);
-    motor_turning = true;
-    request->send(200);
-  });
+  // server.on("/down", HTTP_POST, [](AsyncWebServerRequest *request){
+  //   Serial.println("down");
+  //   // Define direction for the stepper motor
+  //   motor_turning_up = false;
+  //   digitalWrite(DIR_PIN, HIGH);
+  //   motor_turning = true;
+  //   request->send(200);
+  // });
 
-  server.on("/state", HTTP_GET, [](AsyncWebServerRequest *request){
-    Serial.println(motor_status_to_json());
+  // server.on("/state", HTTP_GET, [](AsyncWebServerRequest *request){
+  //   Serial.println(motor_status_to_json());
 
-    // AsyncResponseStream *response = request->beginResponseStream("application/json");
-    // JsonDocument doc;
-    // JsonObject &root = jsonBuffer.createObject();
-    // root["heap"] = ESP.getFreeHeap();
-    // root["ssid"] = WiFi.SSID();
-    // root.printTo(*response);
-    // request->send(response);
+  //   // AsyncResponseStream *response = request->beginResponseStream("application/json");
+  //   // JsonDocument doc;
+  //   // JsonObject &root = jsonBuffer.createObject();
+  //   // root["heap"] = ESP.getFreeHeap();
+  //   // root["ssid"] = WiFi.SSID();
+  //   // root.printTo(*response);
+  //   // request->send(response);
 
-    request->send(200, "application/json", motor_status_to_json());
-  });
+  //   request->send(200, "application/json", motor_status_to_json());
+  // });
 
-  server.on("/heap", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(200, "text/plain", String(ESP.getFreeHeap()));
-  });
+  // server.on("/heap", HTTP_GET, [](AsyncWebServerRequest *request){
+  //   request->send(200, "text/plain", String(ESP.getFreeHeap()));
+  // });
 
   websocket_cleanup_last_run = millis();
 
