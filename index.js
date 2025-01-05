@@ -36,10 +36,12 @@ function onMessage(event) {
         document.getElementById('lockState').innerText = 'Porta chiusa/Door is closed';
         document.getElementById('lockStateIcon').className = 'fas fa-lock';
         document.getElementById('lockStateDirection').className = 'fas';
+        document.getElementById('downButton').disabled = true;
     } else {
         document.getElementById('lockState').innerText = 'Porta aperta/Door is open';
         document.getElementById('lockStateIcon').className = 'fas fa-unlock';
         document.getElementById('lockStateDirection').className = 'fas';
+        document.getElementById('downButton').disabled = false;
     }
     if (motor_state.motor_turning == 1 && motor_state.motor_turning_up == 1) {
         document.getElementById('lockState').innerText = 'Porta in apertura/Door is opening';
