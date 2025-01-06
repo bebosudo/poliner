@@ -32,7 +32,8 @@ function onClose(event) {
 
 function onMessage(event) {
     motor_state = JSON.parse(event.data);
-    if (motor_state.button_pressed == 1) {
+
+    if (motor_state.lower_limit_switch_pressed == 1) {
         document.getElementById('lockState').innerText = 'Porta chiusa/Door is closed';
         document.getElementById('lockStateIcon').className = 'fas fa-lock';
         document.getElementById('lockStateDirection').className = 'fas';
@@ -41,8 +42,16 @@ function onMessage(event) {
         document.getElementById('lockState').innerText = 'Porta aperta/Door is open';
         document.getElementById('lockStateIcon').className = 'fas fa-unlock';
         document.getElementById('lockStateDirection').className = 'fas';
+        document.getElementById('upButton').disabled = false;
         document.getElementById('downButton').disabled = false;
     }
+
+    if (motor_state.upper_limit_switch_pressed == 1) {
+        // Consider the case of the upper limit switch as the door being open, so let it manage with
+        // the condition below and just disable further opening requests.
+        document.getElementById('upButton').disabled = true;
+    }
+
     if (motor_state.motor_turning == 1 && motor_state.motor_turning_up == 1) {
         document.getElementById('lockState').innerText = 'Porta in apertura/Door is opening';
         document.getElementById('lockStateIcon').className = 'fas fa-cog fa-spin';
@@ -54,7 +63,7 @@ function onMessage(event) {
     }
 
     // document.getElementById('motor_turning').innerText = motor_state.motor_turning;
-    // document.getElementById('button_pressed').innerText = motor_state.button_pressed;
+    // document.getElementById('lower_limit_switch_pressed').innerText = motor_state.lower_limit_switch_pressed;
     // document.getElementById('motor_turning_up').innerText = motor_state.motor_turning_up;
 }
 

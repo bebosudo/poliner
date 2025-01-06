@@ -28,10 +28,12 @@
 #define MOTOR_INTERVAL_US 2000
 // Define limit switch pins
 #define LOWER_LIMIT_SWITCH_PIN 0
+#define UPPER_LIMIT_SWITCH_PIN 2
 // How long the limit switch should be pressed for before the motor stops, in milliseconds
 #define LIMIT_SWITCH_PRESSED_FOR_DURATION 50
 
 EasyButton lower_limit_switch(LOWER_LIMIT_SWITCH_PIN);
+EasyButton upper_limit_switch(UPPER_LIMIT_SWITCH_PIN);
 
 // Define a time variable to keep track of the last time the websocket cleanup was run
 unsigned long websocket_cleanup_last_run = 0;
@@ -115,7 +117,7 @@ bool motor_turning = false;
 bool motor_turning_up = false;
 
 String motor_status_to_json() {
-  return "{\"motor_turning\": " + String(motor_turning) + ", \"button_pressed\": " + String(lower_limit_switch.isPressed()) + ", \"motor_turning_up\": " + String(motor_turning_up) + "}";
+  return "{\"motor_turning\": " + String(motor_turning) + ", \"lower_limit_switch_pressed\": " + String(lower_limit_switch.isPressed()) + ", \"upper_limit_switch_pressed\": " + String(upper_limit_switch.isPressed()) + ", \"motor_turning_up\": " + String(motor_turning_up) + "}";
 }
 
 void notifyClients() {
@@ -130,7 +132,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
             motor_turning = true;
             motor_turning_up = false;
             digitalWrite(DIR_PIN, HIGH);
-        } else if (strcmp((char*)data, "upButton") == 0) { // && !upper_limit_switch.isPressed()) {
+        } else if (strcmp((char*)data, "upButton") == 0 && !upper_limit_switch.isPressed()) {
             motor_turning = true;
             motor_turning_up = true;
             digitalWrite(DIR_PIN, LOW);
@@ -204,11 +206,10 @@ void onEvent(AsyncWebSocket       *server,
 //   return String();
 // }
 
-// Callback function to be called when the lower_limit_switch is pressed.
+// Callback function to be called when the limit switches are pressed.
 void onPressed() {
-  Serial.println("limit switch pressed");
+  Serial.println("limit switch pressed, turning off motor");
   motor_turning = false;
-  Serial.println("Turning off motor");
   // Update clients so that they know that a switch was pressed
   notifyClients();
 }
@@ -226,10 +227,13 @@ void setup(){
   pinMode(STEP_PIN, OUTPUT);
   pinMode(DIR_PIN, OUTPUT);
 
-  // Initialize the lower_limit_switch.
+  // Initialize the limit switches.
   lower_limit_switch.begin();
-  // Add the callback function to be called when the lower_limit_switch is pressed.
+  upper_limit_switch.begin();
+  // Add callback functions to be called when the limit switches are pressed. Use the same function
+  // since we just turn off the motor when any switch is pressed.
   lower_limit_switch.onPressedFor(LIMIT_SWITCH_PRESSED_FOR_DURATION, onPressed);
+  upper_limit_switch.onPressedFor(LIMIT_SWITCH_PRESSED_FOR_DURATION, onPressed);
 
   // Serial.print("\n\n\nSetting AP (Access Point)…");
   // // Remove the password parameter, if you want the AP (Access Point) to be open
@@ -329,8 +333,10 @@ void loop(){
     // Serial.println("Motor on");
   }
 
+  // Read the limit switches and call the onPressed function if they are pressed.
   lower_limit_switch.read();
-  if (lower_limit_switch.wasReleased()) {
+  upper_limit_switch.read();
+  if (lower_limit_switch.wasReleased() || upper_limit_switch.wasReleased()) {
     onRelease();
   }
 
