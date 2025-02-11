@@ -1,3 +1,10 @@
+// https://howtomechatronics.com/tutorials/arduino/arduino-wireless-communication-nrf24l01-tutorial/
+// SPI pins on esp8266, used by the nRF24L01 module:
+// GPIO12: MISO
+// GPIO13: MOSI
+// GPIO14: SCLK
+// GPIO15: CS
+
 // Import required libraries
 #include <Arduino.h>
 // #include <SPIFFS.h>
@@ -18,22 +25,33 @@
 // https://github.com/mathieucarbou/ESPAsyncWebServer
 #include <ESPAsyncWebServer.h>
 
+#include <SPI.h>
+#include <nRF24L01.h>
+#include <RF24.h>
+
+// Pins for the nRF24L01 module
+#define CE_PIN 4
+#define CSN_PIN 5
+
+RF24 radio(CE_PIN, CSN_PIN);
+const byte nrf24l01_radio_address[6] = "00001";
+
 WiFiUDP ntpUDP;
 
 // Specify the time server pool and the offset (in seconds),
 // additionally you can specify the update interval (in milliseconds).
 const unsigned short int ntp_offset = 60*60; // UTC+1
 const unsigned long ntp_update_interval = 60000;
-NTPClient timeClient(ntpUDP, "2.it.pool.ntp.org", ntp_offset, ntp_update_interval);
+NTPClient timeClient(ntpUDP, "it.pool.ntp.org", ntp_offset, ntp_update_interval);
 
 // Define stepper motor connections and steps per revolution:
-#define DIR_PIN 13
-#define STEP_PIN 12
+#define DIR_PIN 2
+#define STEP_PIN 15
 // How long the motor step should be in microseconds. Bigger is slower.
 #define MOTOR_INTERVAL_US 2000
 // Define limit switch pins
 #define LOWER_LIMIT_SWITCH_PIN 0
-#define UPPER_LIMIT_SWITCH_PIN 2
+#define UPPER_LIMIT_SWITCH_PIN 16
 // How long the limit switch should be pressed for before the motor stops, in milliseconds
 #define LIMIT_SWITCH_PRESSED_FOR_DURATION 50
 
@@ -233,6 +251,23 @@ void setup(){
   // Serial port for debugging purposes
   Serial.begin(115200);
 
+  radio.begin();
+  radio.openReadingPipe(0, nrf24l01_radio_address);
+  radio.setPALevel(RF24_PA_MIN);
+  radio.startListening();
+
+  Serial.println("Ready to receive data");
+  pinMode(LED_BUILTIN, OUTPUT); // Use builtin LED pin as output pin
+  // Make the onboard LED blip
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(100);
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(100);
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(100);
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(500);
+
   // Declare pins as output:
   pinMode(STEP_PIN, OUTPUT);
   pinMode(DIR_PIN, OUTPUT);
@@ -339,6 +374,12 @@ void setup(){
 }
 
 void loop(){
+  if (radio.available()) {
+    char text[32] = "";
+    radio.read(&text, sizeof(text));
+    Serial.println(text);
+  }
+
   if (motor_turning) {
     digitalWrite(STEP_PIN, HIGH);
     delayMicroseconds(MOTOR_INTERVAL_US);
