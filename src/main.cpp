@@ -1,10 +1,11 @@
 // Import required libraries
-#include <time.h>
 #include <Arduino.h>
 // #include <SPIFFS.h>
 #include <LittleFS.h>
 #include <Hash.h>
 #include <EasyButton.h>
+#include <NTPClient.h>
+#include <WiFiUdp.h>
 #include "credentials.h"
 
 #ifdef ESP32
@@ -17,9 +18,13 @@
 // https://github.com/mathieucarbou/ESPAsyncWebServer
 #include <ESPAsyncWebServer.h>
 
-// Somehow these are included in the arduino cli compiler, which bypasses the libraries installed as deps?
-// #include <AsyncJson.h>
-// #include <ArduinoJson.h>
+WiFiUDP ntpUDP;
+
+// Specify the time server pool and the offset (in seconds),
+// additionally you can specify the update interval (in milliseconds).
+const unsigned short int ntp_offset = 60*60; // UTC+1
+const unsigned long ntp_update_interval = 60000;
+NTPClient timeClient(ntpUDP, "2.it.pool.ntp.org", ntp_offset, ntp_update_interval);
 
 // Define stepper motor connections and steps per revolution:
 #define DIR_PIN 13
@@ -38,6 +43,11 @@ EasyButton upper_limit_switch(UPPER_LIMIT_SWITCH_PIN);
 // Define a time variable to keep track of the last time the websocket cleanup was run
 unsigned long websocket_cleanup_last_run = 0;
 const unsigned long websocket_cleanup_interval_ms = 10000;
+
+// Define the hour at which the door should be opened automatically.
+const unsigned short int hour_door_opening = 7;
+// Store whether the door was already opened automatically today.
+bool door_was_already_opened_automatically = false;
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
@@ -323,6 +333,9 @@ void setup(){
 
   // Start webserver
   server.begin();
+
+  timeClient.begin();
+  timeClient.update();
 }
 
 void loop(){
@@ -345,5 +358,22 @@ void loop(){
     ws.cleanupClients();
     websocket_cleanup_last_run = millis();
     // Serial.println("Cleaned up websocket clients");
+
+    Serial.println(timeClient.getFormattedTime());
+  }
+
+  int currentHour = timeClient.getHours();
+  if (currentHour == hour_door_opening && !door_was_already_opened_automatically) {
+    // Open the door
+    motor_turning = true;
+    motor_turning_up = true;
+    digitalWrite(DIR_PIN, LOW);
+
+    door_was_already_opened_automatically = true;
+    Serial.println("Opening the door automatically since it's " + String(hour_door_opening) + " o'clock.");
+    notifyClients();
+  }
+  if (currentHour != hour_door_opening) {
+    door_was_already_opened_automatically = false;
   }
 }
