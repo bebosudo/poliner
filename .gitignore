@@ -1,2 +1,6 @@
-.pio
+# Project sensitive data
 include/credentials.h
+
+# Build tools config files and dirs
+.pio
+.vscode
